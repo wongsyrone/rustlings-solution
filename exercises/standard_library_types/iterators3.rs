@@ -6,7 +6,7 @@
 //    list_of_results functions.
 // Execute `rustlings hint iterators3` to get some hints!
 
-// I AM NOT DONE
+
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum DivisionError {
@@ -53,7 +53,7 @@ mod tests {
             divide(81, 6),
             Err(DivisionError::NotDivisible(NotDivisibleError {
                 dividend: 81,
-                divisor: 6
+                divisor: 6,
             }))
         );
     }

@@ -12,6 +12,20 @@ pub fn factorial(num: u64) -> u64 {
     // For an extra challenge, don't use:
     // - recursion
     // Execute `rustlings hint iterators4` for hints.
+
+    /*
+     * solution 1: use recursion
+    if num == 1 {
+        1
+    } else if num == 2 {
+        2
+    } else {
+        factorial(num - 1) * num
+    }
+     */
+
+    // solution 2: use iterator
+    
 }
 
 #[cfg(test)]

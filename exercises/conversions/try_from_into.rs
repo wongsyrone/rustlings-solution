@@ -3,6 +3,8 @@
 // instead of the target type itself.
 // You can read more about it at https://doc.rust-lang.org/std/convert/trait.TryFrom.html
 use std::convert::{TryFrom, TryInto};
+use std::error;
+use std::fmt::Formatter;
 
 #[derive(Debug, PartialEq)]
 struct Color {
@@ -11,7 +13,31 @@ struct Color {
     blue: u8,
 }
 
+#[derive(Debug, PartialEq)]
+enum InvalidColorError {
+	OutOfRange,
+	NotThree,
+}
 
+impl InvalidColorError {
+}
+
+impl std::error::Error for InvalidColorError {
+    fn description(&self) -> &str {
+        match self {
+			OutOfRange => "out of range",
+			NotThree => "not three",
+		}
+	}
+}
+
+impl std::fmt::Display for InvalidColorError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+		writeln!(f, "InvalidColorError: {}", self)
+	}
+}
+
+fn is_color_valid(color: i16) -> bool { color >= 0 && color <= 255 }
 
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
@@ -25,19 +51,40 @@ struct Color {
 // Tuple implementation
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = Box<dyn error::Error>;
-    fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {}
+    fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        if !is_color_valid(tuple.0) || !is_color_valid(tuple.1) || !is_color_valid(tuple.2) {
+            Err(Box::new(InvalidColorError::OutOfRange))
+        } else {
+            Ok(Color {red: tuple.0 as u8, green: tuple.1 as u8, blue: tuple.2 as u8})
+        }
+    }
 }
 
 // Array implementation
 impl TryFrom<[i16; 3]> for Color {
     type Error = Box<dyn error::Error>;
-    fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {}
+    fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        if !is_color_valid(arr[0]) || !is_color_valid(arr[1]) || !is_color_valid(arr[2]) {
+            Err(Box::new(InvalidColorError::OutOfRange))
+        } else {
+            Ok(Color {red: arr[0] as u8, green: arr[1] as u8, blue: arr[2] as u8})
+        }
+    }
 }
 
 // Slice implementation
 impl TryFrom<&[i16]> for Color {
     type Error = Box<dyn error::Error>;
-    fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {}
+    fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+		if slice.len() != 3 {
+			return Err(Box::new(InvalidColorError::NotThree));
+		}
+        if !is_color_valid(slice[0]) || !is_color_valid(slice[1]) || !is_color_valid(slice[2]) {
+            Err(Box::new(InvalidColorError::OutOfRange))
+        } else {
+            Ok(Color {red: slice[0] as u8, green: slice[1] as u8, blue: slice[2] as u8})
+        }
+	}
 }
 
 fn main() {

@@ -4,11 +4,38 @@
 // You can read more about it at https://doc.rust-lang.org/std/str/trait.FromStr.html
 use std::error;
 use std::str::FromStr;
+use std::fmt::Formatter;
 
 #[derive(Debug)]
 struct Person {
     name: String,
     age: usize,
+}
+
+#[derive(Debug, PartialEq)]
+enum InvalidPersonError {
+	InvalidLength,
+	InvalidName,
+	InvalidAge,
+}
+
+impl InvalidPersonError {
+}
+
+impl std::error::Error for InvalidPersonError {
+    fn description(&self) -> &str {
+        match self {
+			InvalidLength => "invalid length",
+			InvalidName => "invalid name",
+			InvalidAge => "invalid age",
+		}
+	}
+}
+
+impl std::fmt::Display for InvalidPersonError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+		writeln!(f, "InvalidPersonError: {}", self)
+	}
 }
 
 
@@ -26,19 +53,19 @@ impl FromStr for Person {
     type Err = Box<dyn error::Error>;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
         if s.len() == 0 {
-            return Err("err".to_string());
+            return Err(Box::new(InvalidPersonError::InvalidLength));
         };
         let v = s.split(",").collect::<Vec<_>>();
         if v.len() != 2 {
-            return Err("err".to_string());
+            return Err(Box::new(InvalidPersonError::InvalidLength));
         };
         let name = v[0];
         if name.len() == 0 {
-            return Err("err".to_string());
+            return Err(Box::new(InvalidPersonError::InvalidName));
         };
         let age = match v[1].parse::<usize>() {
             Ok(a) => a,
-            _ => return Err("err".to_string()),
+            _ => return Err(Box::new(InvalidPersonError::InvalidAge)),
         };
         Ok(Person {
             name: name.to_string(),
